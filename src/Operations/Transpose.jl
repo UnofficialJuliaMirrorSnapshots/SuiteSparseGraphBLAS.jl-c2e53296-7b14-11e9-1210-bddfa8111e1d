@@ -1,3 +1,5 @@
+import GraphBLASInterface.GrB_transpose
+
 """
     GrB_transpose(C, Mask, accum, A, desc)
 
@@ -5,7 +7,7 @@ Compute a new matrix that is the transpose of the source matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0

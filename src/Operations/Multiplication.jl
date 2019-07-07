@@ -1,3 +1,6 @@
+import GraphBLASInterface:
+        GrB_mxm, GrB_vxm, GrB_mxv
+
 """
     GrB_mxm(C, Mask, accum, semiring, A, B, desc)
 
@@ -5,7 +8,7 @@ Multiplies a matrix with another matrix on a semiring. The result is a matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -68,11 +71,11 @@ end
 """
     GrB_vxm(w, mask, accum, semiring, u, A, desc)
 
-Multiplies a (row) vector with a matrix on an semiring. The result is a vector.
+Multiplies a (row)vector with a matrix on an semiring. The result is a vector.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -139,7 +142,7 @@ Multiplies a matrix by a vector on a semiring. The result is a vector.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0

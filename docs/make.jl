@@ -1,4 +1,4 @@
-using Documenter, SuiteSparseGraphBLAS
+using Documenter, GraphBLASInterface, SuiteSparseGraphBLAS
 
 makedocs(
     modules     = [SuiteSparseGraphBLAS],

@@ -1,11 +1,12 @@
+import GraphBLASInterface:
+        GrB_extract, GrB_Vector_extract, GrB_Matrix_extract, GrB_Col_extract
+
 """
     GrB_extract(arg1, Mask, accum, arg4, ...)
 
 Generic matrix/vector extraction.
 """
-GrB_extract(w::GrB_Vector, mask, accum, u::GrB_Vector, I, ni, desc) = GrB_Vector_extract(w, mask, accum, u, I, ni, desc)
-GrB_extract(C::GrB_Matrix, Mask, accum, A::GrB_Matrix, I, ni, J, nj, desc) = GrB_Matrix_extract(C, Mask, accum, A, I, ni, J, nj, desc)
-GrB_extract(w::GrB_Vector, mask, accum, A::GrB_Matrix, I, ni, j, desc) = GrB_Col_extract(w, mask, accum, A, I, ni, j, desc)
+function GrB_extract end
 
 """
     GrB_Vector_extract(w, mask, accum, u, I, ni, desc)
@@ -15,7 +16,7 @@ The result is a vector whose size is equal to the number of indices.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -88,7 +89,7 @@ The result is a matrix whose size is equal to size of the sets of indices.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -163,12 +164,12 @@ end
 """
     GrB_Col_extract(w, mask, accum, A, I, ni, j, desc)
 
-Extract from one column of a matrix into a vector. With the transpose descriptor for the source matrix, 
+Extract from one column of a matrix into a vector. With the transpose descriptor for the source matrix,
 elements of an arbitrary row of the matrix can be extracted with this function as well.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0

@@ -1,10 +1,12 @@
+import GraphBLASInterface:
+        GrB_apply, GrB_Vector_apply, GrB_Matrix_apply
+
 """
     GrB_apply(C, Mask, accum, op, A, desc)
 
 Generic matrix/vector apply.
 """
-GrB_apply(C::GrB_Vector, Mask, accum, op, A, desc) = GrB_Vector_apply(C, Mask, accum, op, A, desc)
-GrB_apply(C::GrB_Matrix, Mask, accum, op, A, desc) = GrB_Matrix_apply(C, Mask, accum, op, A, desc)
+function GrB_apply end
 
 """
     GrB_Vector_apply(w, mask, accum, op, u, desc)
@@ -13,7 +15,7 @@ Compute the transformation of the values of the elements of a vector using a una
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -49,7 +51,6 @@ number of entries: 2
 column: 0 : 2 entries [0:1]
     row 0: int64 -10
     row 2: int64 -20
-
 ```
 """
 function GrB_Vector_apply(          # w<mask> = accum (w, op(u))
@@ -78,7 +79,7 @@ Compute the transformation of the values of the elements of a matrix using a una
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -116,7 +117,6 @@ row: 0 : 2 entries [0:1]
     column 1: int64 -20
 row: 1 : 1 entries [2:2]
     column 1: int64 -30
-
 ```
 """
 function GrB_Matrix_apply(          # C<Mask> = accum (C, op(A)) or op(A')

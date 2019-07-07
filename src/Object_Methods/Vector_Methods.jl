@@ -1,11 +1,15 @@
+import GraphBLASInterface:
+        GrB_Vector_new, GrB_Vector_build, GrB_Vector_dup, GrB_Vector_clear, GrB_Vector_size,
+        GrB_Vector_nvals, GrB_Vector_setElement, GrB_Vector_extractElement, GrB_Vector_extractTuples
+
 """
     GrB_Vector_new(v, type, n)
 
-Create a new vector with specified domain and size.
+Initialize a vector with specified domain and size.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -17,7 +21,7 @@ julia> GrB_Vector_new(V, GrB_FP64, 4)
 GrB_SUCCESS::GrB_Info = 0
 ```
 """
-function GrB_Vector_new(v::GrB_Vector{T}, type::GrB_Type{T}, n::U) where {U <: GrB_Index, T <: valid_types}
+function GrB_Vector_new(v::GrB_Vector{T}, type::GrB_Type{T}, n::U) where {T, U <: GrB_Index}
     v_ptr = pointer_from_objref(v)
     
     return GrB_Info(
@@ -33,11 +37,11 @@ end
 """
     GrB_Vector_dup(w, u)
 
-Create a new vector with the same domain, size, and contents as another vector.
+Initialize a vector with the same domain, size, and contents as another vector.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -71,10 +75,9 @@ column: 0 : 3 entries [0:2]
     row 1: int64 2
     row 2: int64 32
     row 4: int64 4
-
 ```
 """
-function GrB_Vector_dup(w::GrB_Vector{T}, u::GrB_Vector{T}) where T <: valid_types
+function GrB_Vector_dup(w::GrB_Vector{T}, u::GrB_Vector{T}) where T
     w_ptr = pointer_from_objref(w)
 
     return GrB_Info(
@@ -94,7 +97,7 @@ Remove all the elements (tuples) from a vector.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -135,11 +138,11 @@ end
     GrB_Vector_size(v)
 
 Return the size of a vector if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -177,11 +180,11 @@ end
     GrB_Vector_nvals(v)
 
 Return the number of stored elements in a vector if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -222,7 +225,7 @@ Store elements from tuples into a vector.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -250,10 +253,9 @@ column: 0 : 3 entries [0:2]
     row 0: double 2.1
     row 2: double 3.2
     row 3: double 4.4
-
 ```
 """
-function GrB_Vector_build(w::GrB_Vector{T}, I::Vector{U}, X::Vector{T}, nvals::U, dup::GrB_BinaryOp) where{U <: GrB_Index, T <: valid_types}
+function GrB_Vector_build(w::GrB_Vector{T}, I::Vector{U}, X::Vector{T}, nvals::U, dup::GrB_BinaryOp) where {T, U <: GrB_Index}
     I_ptr = pointer(I)
     X_ptr = pointer(X)
     fn_name = "GrB_Vector_build_" * suffix(T)
@@ -275,7 +277,7 @@ Set one element of a vector to a given value, w[i] = x.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -301,7 +303,7 @@ julia> GrB_Vector_extractElement(V, 2)
 7
 ```
 """
-function GrB_Vector_setElement(w::GrB_Vector{T}, x::T, i::U) where {U <: GrB_Index, T <: valid_int_types}
+function GrB_Vector_setElement(w::GrB_Vector{T}, x::T, i::U) where {T, U <: GrB_Index}
     fn_name = "GrB_Vector_setElement_" * suffix(T)
     return GrB_Info(
         ccall(
@@ -353,11 +355,11 @@ end
     GrB_Vector_extractElement(v, i)
 
 Return element of a vector at a given index (v[i]) if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -377,7 +379,7 @@ julia> GrB_Vector_extractElement(V, 2)
 3.2
 ```
 """
-function GrB_Vector_extractElement(v::GrB_Vector{T}, i::U) where {T <: valid_types, U <: GrB_Index}
+function GrB_Vector_extractElement(v::GrB_Vector{T}, i::U) where {T, U <: GrB_Index}
     fn_name = "GrB_Vector_extractElement_" * suffix(T)
 
     element = Ref(T(0))
@@ -396,11 +398,12 @@ end
 """
     GrB_Vector_extractTuples(v)
 
-Return tuples stored in a vector.
+Return tuples stored in a vector if successful.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -420,7 +423,7 @@ julia> GrB_Vector_extractTuples(V)
 ([0, 2, 3], [2.1, 3.2, 4.4])
 ```
 """
-function GrB_Vector_extractTuples(v::GrB_Vector{T}) where T <: valid_types
+function GrB_Vector_extractTuples(v::GrB_Vector{T}) where T
     nvals = GrB_Vector_nvals(v)
     if typeof(nvals) == GrB_Info
         return nvals

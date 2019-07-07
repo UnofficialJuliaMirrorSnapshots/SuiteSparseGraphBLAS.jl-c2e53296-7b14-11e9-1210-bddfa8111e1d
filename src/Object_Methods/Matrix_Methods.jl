@@ -1,11 +1,16 @@
+import GraphBLASInterface:
+        GrB_Matrix_new, GrB_Matrix_build, GrB_Matrix_dup, GrB_Matrix_clear,
+        GrB_Matrix_nrows, GrB_Matrix_ncols, GrB_Matrix_nvals, GrB_Matrix_setElement,
+        GrB_Matrix_extractElement, GrB_Matrix_extractTuples
+
 """
     GrB_Matrix_new(A, type, nrows, ncols)
 
-Create a new matrix with specified domain and dimensions.
+Initialize a matrix with specified domain and dimensions.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -17,7 +22,7 @@ julia> GrB_Matrix_new(MAT, GrB_INT8, 4, 4)
 GrB_SUCCESS::GrB_Info = 0
 ```
 """
-function GrB_Matrix_new(A::GrB_Matrix{T}, type::GrB_Type{T}, nrows::U, ncols::U) where {U <: GrB_Index, T <: valid_types}
+function GrB_Matrix_new(A::GrB_Matrix{T}, type::GrB_Type{T}, nrows::U, ncols::U) where {T, U <: GrB_Index}
     A_ptr = pointer_from_objref(A)
     
     return GrB_Info(
@@ -37,7 +42,7 @@ Store elements from tuples into a matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -69,11 +74,9 @@ row: 2 : 3 entries [1:3]
     column 3: int8 5
 row: 3 : 1 entries [4:4]
     column 3: int8 6
-
-
 ```
 """
-function GrB_Matrix_build(C::GrB_Matrix{T}, I::Vector{U}, J::Vector{U}, X::Vector{T}, nvals::U, dup::GrB_BinaryOp) where{U <: GrB_Index, T <: valid_types}
+function GrB_Matrix_build(C::GrB_Matrix{T}, I::Vector{U}, J::Vector{U}, X::Vector{T}, nvals::U, dup::GrB_BinaryOp) where {T, U <: GrB_Index}
     I_ptr = pointer(I)
     J_ptr = pointer(J)
     X_ptr = pointer(X)
@@ -92,11 +95,11 @@ end
     GrB_Matrix_nrows(A)
 
 Return the number of rows in a matrix if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -129,11 +132,11 @@ end
     GrB_Matrix_ncols(A)
 
 Return the number of columns in a matrix if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -166,11 +169,11 @@ end
     GrB_Matrix_nvals(A)
 
 Return the number of stored elements in a matrix if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code..
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -207,11 +210,11 @@ end
 """
     GrB_Matrix_dup(C, A)
 
-Create a new matrix with the same domain, dimensions, and contents as another matrix.
+Initialize a new matrix with the same domain, dimensions, and contents as another matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -249,10 +252,9 @@ row: 2 : 3 entries [1:3]
     column 3: int8 5
 row: 3 : 1 entries [4:4]
     column 3: int8 6
-
 ```
 """
-function GrB_Matrix_dup(C::GrB_Matrix{T}, A::GrB_Matrix{T}) where T <: valid_types
+function GrB_Matrix_dup(C::GrB_Matrix{T}, A::GrB_Matrix{T}) where T
     C_ptr = pointer_from_objref(C)
 
     return GrB_Info(
@@ -272,7 +274,7 @@ Remove all elements from a matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -316,7 +318,7 @@ Set one element of a matrix to a given value, C[I][J] = X.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -343,7 +345,7 @@ julia> GrB_Matrix_extractElement(MAT, 1, 1)
 7
 ```
 """
-function GrB_Matrix_setElement(C::GrB_Matrix{T}, X::T, I::U, J::U) where {U <: GrB_Index, T <: valid_int_types}
+function GrB_Matrix_setElement(C::GrB_Matrix{T}, X::T, I::U, J::U) where {T, U <: GrB_Index}
     fn_name = "GrB_Matrix_setElement_" * suffix(T)
     return GrB_Info(
         ccall(
@@ -395,11 +397,11 @@ end
     GrB_Matrix_extractElement(A, row_index, col_index)
 
 Return element of a matrix at a given index (A[row_index][col_index]) if successful.
-Else return value of type GrB Info.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -419,7 +421,7 @@ julia> GrB_Matrix_extractElement(MAT, 1, 1)
 2
 ```
 """
-function GrB_Matrix_extractElement(A::GrB_Matrix{T}, row_index::U, col_index::U) where {U <: GrB_Index, T <: valid_types}
+function GrB_Matrix_extractElement(A::GrB_Matrix{T}, row_index::U, col_index::U) where {T, U <: GrB_Index}
     fn_name = "GrB_Matrix_extractElement_" * suffix(T)
 
     element = Ref(T(0))
@@ -438,11 +440,12 @@ end
 """
     GrB_Matrix_extractTuples(A)
 
-Return tuples stored in a matrix.
+Return tuples stored in a matrix if successful.
+Else return `GrB_Info` error code.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -462,7 +465,7 @@ julia> GrB_Matrix_extractTuples(MAT)
 ([1, 2, 2, 2, 3], [1, 1, 2, 3, 3], Int8[2, 4, 3, 5, 6])
 ```
 """
-function GrB_Matrix_extractTuples(A::GrB_Matrix{T}) where T <: valid_types
+function GrB_Matrix_extractTuples(A::GrB_Matrix{T}) where T
     nvals = GrB_Matrix_nvals(A)
     if typeof(nvals) == GrB_Info
         return nvals

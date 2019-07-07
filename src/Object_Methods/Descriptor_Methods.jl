@@ -1,7 +1,10 @@
+import GraphBLASInterface:
+        GrB_Descriptor_new, GrB_Descriptor_set
+
 """
     GrB_Descriptor_new(desc)
 
-Create a new (empty or default) descriptor.
+Initialize a descriptor with default field values.
 """
 function GrB_Descriptor_new(desc::GrB_Descriptor)
     desc_ptr = pointer_from_objref(desc)

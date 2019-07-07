@@ -1,3 +1,7 @@
+import GraphBLASInterface:
+        GrB_eWiseAdd, GrB_eWiseAdd_Vector_Semiring, GrB_eWiseAdd_Vector_Monoid, GrB_eWiseAdd_Vector_BinaryOp,
+        GrB_eWiseAdd_Matrix_Semiring, GrB_eWiseAdd_Matrix_Monoid, GrB_eWiseAdd_Matrix_BinaryOp
+
 """
     GrB_eWiseAdd(C, mask, accum, op, A, B, desc)
 
@@ -12,12 +16,7 @@ then T(i, j) = A (i, j) and the "+" operator is not used. Likewise, if only B(i,
 but A(i, j) is not in the pattern of A, then T(i, j) = B(i, j). For a semiring, the mult operator is the
 semiring's add operator.
 """
-GrB_eWiseAdd(C, mask, accum, op::GrB_BinaryOp, A::GrB_Vector, B, desc) = GrB_eWiseAdd_Vector_BinaryOp(C, mask, accum, op, A, B, desc)
-GrB_eWiseAdd(C, mask, accum, op::GrB_Monoid, A::GrB_Vector, B, desc) = GrB_eWiseAdd_Vector_Monoid(C, mask, accum, op, A, B, desc)
-GrB_eWiseAdd(C, mask, accum, op::GrB_Semiring, A::GrB_Vector, B, desc) = GrB_eWiseAdd_Vector_Semiring(C, mask, accum, op, A, B, desc)
-GrB_eWiseAdd(C, mask, accum, op::GrB_BinaryOp, A::GrB_Matrix, B, desc) = GrB_eWiseAdd_Matrix_BinaryOp(C, mask, accum, op, A, B, desc)
-GrB_eWiseAdd(C, mask, accum, op::GrB_Monoid, A::GrB_Matrix, B, desc) = GrB_eWiseAdd_Matrix_Monoid(C, mask, accum, op, A, B, desc)
-GrB_eWiseAdd(C, mask, accum, op::GrB_Semiring, A::GrB_Matrix, B, desc) = GrB_eWiseAdd_Matrix_Semiring(C, mask, accum, op, A, B, desc)
+function GrB_eWiseAdd end
 
 """
     GrB_eWiseAdd_Vector_Semiring(w, mask, accum, semiring, u, v, desc)
@@ -27,7 +26,7 @@ Compute element-wise vector addition using semiring. Semiring's add operator is 
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -87,6 +86,7 @@ function GrB_eWiseAdd_Vector_Semiring(          # w<Mask> = accum (w, u+v)
                 )
 end
 
+
 """
     GrB_eWiseAdd_Vector_Monoid(w, mask, accum, monoid, u, v, desc)
 
@@ -95,7 +95,7 @@ Compute element-wise vector addition using monoid.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -163,7 +163,7 @@ Compute element-wise vector addition using binary operator.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -231,7 +231,75 @@ Compute element-wise matrix addition using semiring. Semiring's add operator is 
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
+
+julia> GrB_init(GrB_NONBLOCKING)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> A = GrB_Matrix{Int64}()
+GrB_Matrix{Int64}
+
+julia> GrB_Matrix_new(A, GrB_INT64, 4, 4)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> I1 = [0, 0, 2, 2]; J1 = [1, 2, 0, 2]; X1 = [10, 20, 30, 40]; n1 = 4;
+
+julia> GrB_Matrix_build(A, I1, J1, X1, n1, GrB_FIRST_INT64)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> B = GrB_Matrix{Int64}()
+GrB_Matrix{Int64}
+
+julia> GrB_Matrix_new(B, GrB_INT64, 4, 4)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> I2 = [0, 0, 2]; J2 = [3, 2, 0]; X2 = [15, 16, 17]; n2 = 3;
+
+julia> GrB_Matrix_build(B, I2, J2, X2, n2, GrB_FIRST_INT64)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> C = GrB_Matrix{Int64}()
+GrB_Matrix{Int64}
+
+julia> GrB_Matrix_new(C, GrB_INT64, 4, 4)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> GrB_eWiseAdd_Matrix_Semiring(C, GrB_NULL, GrB_NULL, GxB_PLUS_TIMES_INT64, A, B, GrB_NULL)
+GrB_SUCCESS::GrB_Info = 0
+
+julia> GrB_Matrix_extractTuples(C)
+([0, 0, 0, 2, 2], [1, 2, 3, 0, 2], [10, 36, 15, 47, 40])
+```
+"""
+function GrB_eWiseAdd_Matrix_Semiring(          # C<Mask> = accum (C, A+B)
+    C::GrB_Matrix,                              # input/output matrix for results
+    Mask::T,                                    # optional mask for C, unused if NULL
+    accum::U,                                   # optional accum for Z=accum(C,T)
+    semiring::GrB_Semiring,                     # defines '+' for T=A+B
+    A::GrB_Matrix,                              # first input:  matrix A
+    B::GrB_Matrix,                              # second input: matrix B
+    desc::V                                     # descriptor for C, Mask, A, and B
+) where {T <: valid_matrix_mask_types, U <: valid_accum_types, V <: valid_desc_types}
+
+    return GrB_Info(
+                ccall(
+                        dlsym(graphblas_lib, "GrB_eWiseAdd_Matrix_Semiring"),
+                        Cint,
+                        (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                        C.p, Mask.p, accum.p, semiring.p, A.p, B.p, desc.p
+                    )
+                )
+end
+
+"""
+    GrB_eWiseAdd_Matrix_Monoid(C, Mask, accum, monoid, A, B, desc)
+
+Compute element-wise matrix addition using monoid.
+`C<Mask> = accum (C, A + B)`
+
+# Examples
+```jldoctest
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -280,74 +348,6 @@ julia> GrB_Matrix_extractTuples(C)
 ([0, 0], [1, 2], [10, 36])
 ```
 """
-function GrB_eWiseAdd_Matrix_Semiring(          # C<Mask> = accum (C, A+B)
-    C::GrB_Matrix,                              # input/output matrix for results
-    Mask::T,                                    # optional mask for C, unused if NULL
-    accum::U,                                   # optional accum for Z=accum(C,T)
-    semiring::GrB_Semiring,                     # defines '+' for T=A+B
-    A::GrB_Matrix,                              # first input:  matrix A
-    B::GrB_Matrix,                              # second input: matrix B
-    desc::V                                     # descriptor for C, Mask, A, and B
-) where {T <: valid_matrix_mask_types, U <: valid_accum_types, V <: valid_desc_types}
-
-    return GrB_Info(
-                ccall(
-                        dlsym(graphblas_lib, "GrB_eWiseAdd_Matrix_Semiring"),
-                        Cint,
-                        (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
-                        C.p, Mask.p, accum.p, semiring.p, A.p, B.p, desc.p
-                    )
-                )
-end
-
-"""
-    GrB_eWiseAdd_Matrix_Monoid(C, Mask, accum, monoid, A, B, desc)
-
-Compute element-wise matrix addition using monoid.
-`C<Mask> = accum (C, A + B)`
-
-# Examples
-```jldoctest
-julia> using SuiteSparseGraphBLAS
-
-julia> GrB_init(GrB_NONBLOCKING)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> A = GrB_Matrix{Int64}()
-GrB_Matrix{Int64}
-
-julia> GrB_Matrix_new(A, GrB_INT64, 4, 4)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> I1 = [0, 0, 2, 2]; J1 = [1, 2, 0, 2]; X1 = [10, 20, 30, 40]; n1 = 4;
-
-julia> GrB_Matrix_build(A, I1, J1, X1, n1, GrB_FIRST_INT64)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> B = GrB_Matrix{Int64}()
-GrB_Matrix{Int64}
-
-julia> GrB_Matrix_new(B, GrB_INT64, 4, 4)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> I2 = [0, 0, 2]; J2 = [3, 2, 0]; X2 = [15, 16, 17]; n2 = 3;
-
-julia> GrB_Matrix_build(B, I2, J2, X2, n2, GrB_FIRST_INT64)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> C = GrB_Matrix{Int64}()
-GrB_Matrix{Int64}
-
-julia> GrB_Matrix_new(C, GrB_INT64, 4, 4)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> GrB_eWiseAdd_Matrix_Monoid(C, GrB_NULL, GrB_NULL, GxB_PLUS_INT64_MONOID, A, B, GrB_NULL)
-GrB_SUCCESS::GrB_Info = 0
-
-julia> GrB_Matrix_extractTuples(C)
-([0, 0, 0, 2, 2], [1, 2, 3, 0, 2], [10, 36, 15, 47, 40])
-```
-"""
 function GrB_eWiseAdd_Matrix_Monoid(            # C<Mask> = accum (C, A+B)
     C::GrB_Matrix,                              # input/output matrix for results
     Mask::T,                                    # optional mask for C, unused if NULL
@@ -376,7 +376,7 @@ Compute element-wise matrix addition using binary operator.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0

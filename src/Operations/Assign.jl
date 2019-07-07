@@ -1,24 +1,22 @@
+import GraphBLASInterface:
+        GrB_assign, GrB_Vector_assign, GrB_Matrix_assign, GrB_Col_assign, GrB_Row_assign
+
 """
     GrB_assign(arg1, Mask, accum, arg4, arg5, ...)
 
 Generic method for submatrix/subvector assignment.
 """
-GrB_assign(w::GrB_Vector, mask, accum, u::GrB_Vector, I, ni, desc ) = GrB_Vector_assign(w, mask, accum, u, I, ni, desc)
-GrB_assign(w::GrB_Vector, mask, accum, x, I, ni, desc) = GrB_Vector_assign(w, mask, accum, x, I, ni, desc )
-GrB_assign(C::GrB_Matrix, Mask, accum, A::GrB_Matrix, I, ni, J, nj, desc) = GrB_Matrix_assign(C, Mask, accum, A, I, ni, J, nj, desc)
-GrB_assign(C::GrB_Matrix, Mask, accum, u::GrB_Vector, I, ni, j, desc) = GrB_Col_assign(C, Mask, accum, u, I, ni, j, desc)
-GrB_assign(C::GrB_Matrix, Mask, accum, u::GrB_Vector, i::GrB_Index, J, nj, desc) = GrB_Row_assign(C, Mask, accum, u, i, J, nj, desc)
-GrB_assign(C::GrB_Matrix, Mask, accum, x, I, ni, J, nj, desc) = GrB_Matrix_assign(C, Mask, accum, x, I, ni, J, nj, desc)
+function GrB_assign end
 
 """
     GrB_Vector_assign(w, mask, accum, u, I, ni, desc)
 
-Assign values from one GraphBLAS vector to a subset of a vector as specified by a set of 
+Assign values from one GraphBLAS vector to a subset of a vector as specified by a set of
 indices. The size of the input vector is the same size as the index array provided.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -70,12 +68,12 @@ end
 """
     GrB_Matrix_assign(C, Mask, accum, A, I, ni, J, nj, desc)
 
-Assign values from one GraphBLAS matrix to a subset of a matrix as specified by a set of 
+Assign values from one GraphBLAS matrix to a subset of a matrix as specified by a set of
 indices. The dimensions of the input matrix are the same size as the row and column index arrays provided.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -130,12 +128,12 @@ end
     GrB_Col_assign(C, Mask, accum, u, I, ni, j, desc)
 
 Assign the contents of a vector to a subset of elements in one column of a matrix.
-Note that since the output cannot be transposed, a different variant of assign is provided 
+Note that since the output cannot be transposed, a different variant of assign is provided
 to assign to a row of matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -194,12 +192,12 @@ end
     GrB_Row_assign(C, mask, accum, u, i, J, nj, desc)
 
 Assign the contents of a vector to a subset of elements in one row of a matrix.
-Note that since the output cannot be transposed, a different variant of assign is provided 
+Note that since the output cannot be transposed, a different variant of assign is provided
 to assign to a column of a matrix.
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -262,7 +260,7 @@ With the use of `GrB_ALL`, the entire destination vector can be filled with the 
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -281,14 +279,14 @@ julia> GrB_Vector_extractTuples(w)
 ```
 """
 function GrB_Vector_assign(         # w<mask>(I) = accum (w(I),x)
-        w::GrB_Vector,              # input/output vector for results
+        w::GrB_Vector{Z},           # input/output vector for results
         mask::T,                    # optional mask for w, unused if NULL
         accum::U,                   # optional accum for Z=accum(w(I),x)
-        x::Y,                       # scalar to assign to w(I)
+        x,                          # scalar to assign to w(I)
         I::S,                       # row indices
         ni::X,                      # number of row indices
         desc::V                     # descriptor for w and mask
-) where {T <: valid_vector_mask_types, U <: valid_accum_types, V <: valid_desc_types, X <: GrB_Index, Y <: valid_int_types, S <: valid_indices_types}
+) where {T <: valid_vector_mask_types, U <: valid_accum_types, V <: valid_desc_types, X <: GrB_Index, S <: valid_indices_types, Z}
 
     fn_name = "GrB_Vector_assign_" * suffix(Z)
 
@@ -303,7 +301,7 @@ function GrB_Vector_assign(         # w<mask>(I) = accum (w(I),x)
 end
 
 function GrB_Vector_assign(         # w<mask>(I) = accum (w(I),x)
-        w::GrB_Vector,            # input/output vector for results
+        w::GrB_Vector,              # input/output vector for results
         mask::T,                    # optional mask for w, unused if NULL
         accum::U,                   # optional accum for Z=accum(w(I),x)
         x::UInt64,                  # scalar to assign to w(I)
@@ -372,7 +370,7 @@ With the use of `GrB_ALL`, the entire destination matrix can be filled with the 
 
 # Examples
 ```jldoctest
-julia> using SuiteSparseGraphBLAS
+julia> using GraphBLASInterface, SuiteSparseGraphBLAS
 
 julia> GrB_init(GrB_NONBLOCKING)
 GrB_SUCCESS::GrB_Info = 0
@@ -391,16 +389,16 @@ julia> GrB_Matrix_extractTuples(A)
 ```
 """
 function GrB_Matrix_assign(         # C<Mask>(I,J) = accum (C(I,J),x)
-        C::GrB_Matrix,              # input/output matrix for results
+        C::GrB_Matrix{Z},           # input/output matrix for results
         Mask::T,                    # optional mask for C, unused if NULL
         accum::U,                   # optional accum for Z=accum(C(I,J),x)
-        x::Y,                       # scalar to assign to C(I,J)
+        x,                          # scalar to assign to C(I,J)
         I::S,                       # row indices
         ni::X,                      # number of row indices
         J::R,                       # column indices
         nj::X,                      # number of column indices
         desc::V                     # descriptor for C and Mask
-) where {T <: valid_matrix_mask_types, U <: valid_accum_types, V <: valid_desc_types, X <: GrB_Index, Y <: valid_int_types, R <: valid_indices_types, S <: valid_indices_types}
+) where {T <: valid_matrix_mask_types, U <: valid_accum_types, V <: valid_desc_types, X <: GrB_Index, R <: valid_indices_types, S <: valid_indices_types, Z}
 
     fn_name = "GrB_Matrix_assign_" * suffix(Z)
 
