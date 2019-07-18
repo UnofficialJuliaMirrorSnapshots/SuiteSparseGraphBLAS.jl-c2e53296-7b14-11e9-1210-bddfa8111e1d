@@ -440,3 +440,20 @@ function Diagonal(A::GrB_Matrix{T}) where T
     end
     return D
 end
+
+"""
+    dropzeros!(A)
+
+Remove all zero entries from GraphBLAS matrix.
+"""
+function dropzeros!(A::GrB_Matrix)
+    outp_replace_desc = GrB_Descriptor(Dict(GrB_OUTP => GrB_REPLACE))
+    res = GrB_assign(A, A, GrB_NULL, A, GrB_ALL, 0, GrB_ALL, 0, outp_replace_desc)
+    if res != GrB_SUCCESS
+        error(res)
+    end
+    res = GrB_free(outp_replace_desc)
+    if res != GrB_SUCCESS
+        error(res)
+    end
+end
